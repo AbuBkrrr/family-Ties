@@ -1,2 +1,3 @@
 # family-Ties
-building heritage
+
+Building heritage — see ARCHITECTURE.md for the full project specification and development plan.
