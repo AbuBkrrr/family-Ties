@@ -1,13 +1,48 @@
-node_modules
-.env
-.env.*
-.DS_Store
-dist
-build
-uploads
-*.log
+# Dependencies
+node_modules/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
+.Python
+env/
+venv/
+ENV/
+
+# Environment variables
+.env
 .env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Uploads
+uploads/
+temp/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Redis
+dump.rdb

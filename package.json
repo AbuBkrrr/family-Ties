@@ -1,0 +1,39 @@
+{
+  "name": "family-ties",
+  "version": "1.0.0",
+  "description": "Family connectivity and digital legacy platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "migrate": "node backend/migrations/run.js",
+    "seed": "node backend/migrations/seed.js",
+    "test": "jest --coverage",
+    "lint": "eslint ."
+  },
+  "keywords": ["family", "digital-legacy", "ai-twin", "genealogy"],
+  "author": "Family Ties Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.10.0",
+    "ioredis": "^5.3.2",
+    "jsonwebtoken": "^9.0.0",
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.0.3",
+    "axios": "^1.4.0",
+    "bull": "^4.10.4",
+    "multer": "^1.4.5-lts.1",
+    "aws-sdk": "^2.1400.0",
+    "express-validator": "^7.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "jest": "^29.5.0",
+    "eslint": "^8.40.0",
+    "supertest": "^6.3.3"
+  }
+}

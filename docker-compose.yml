@@ -6,15 +6,20 @@ services:
     container_name: family-ties-db
     environment:
       POSTGRES_USER: familyties
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-securepassword123}
       POSTGRES_DB: familyties
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations:/docker-entrypoint-initdb.d
+      - ./backend/migrations/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
     ports:
       - "5432:5432"
     networks:
       - family-ties-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U familyties"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
@@ -23,41 +28,55 @@ services:
       - "6379:6379"
     networks:
       - family-ties-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: family-ties-backend
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: familyties
       DB_USER: familyties
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD:-securepassword123}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-your_jwt_secret_key}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      AI_SERVICE_URL: http://ai-service:5000
+      NODE_ENV: ${NODE_ENV:-development}
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - family-ties-network
     volumes:
       - ./backend/uploads:/app/uploads
+    command: sh -c "npm run migrate && npm start"
 
-  ai-microservice:
-    build: ./ai-service
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
     container_name: family-ties-ai
     environment:
       PYTHONUNBUFFERED: 1
-      TESSERACT_DATA_DIR: /usr/share/tesseract-ocr/4.00/tessdata
+      PORT: 5000
     ports:
       - "5000:5000"
     depends_on:
@@ -68,7 +87,9 @@ services:
       - ./ai-service/models:/app/models
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: family-ties-frontend
     environment:
       REACT_APP_API_URL: http://localhost:3000/api
